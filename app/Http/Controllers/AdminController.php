@@ -14,9 +14,9 @@ class AdminController extends Controller
 {
     //
     public function getStudents(){
-        $students = User::where('role_id','=',3);
+        $students = User::where('role_id','=',2)->get();
         if($students->count()!=0){
-            return response()->json(['students'=>$students]);
+            return response()->json(['students'=>$students,'studentscount'=>$students->count()]);
         }
         return response()->json(['message'=>'no students found']);
     }

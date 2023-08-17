@@ -24,5 +24,18 @@ class UniversalController extends Controller
     public function logOut(){
         Session::flush();
         Auth::logout();
+        error_log(Auth::id());
+        return response()->json(['message'=>'logged out from app !']);
+    }
+
+    public function getLoggedInUserDetails(){
+
+        if(Auth::check()){
+            error_log(Auth::id());
+            return 'user is logged in';
+        }
+        else{
+            return 'user not logged in';
+        }
     }
 }

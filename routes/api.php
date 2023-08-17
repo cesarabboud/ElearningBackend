@@ -12,6 +12,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\InstructorController;
+use App\Http\Controllers\UniversalController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -35,6 +36,8 @@ Route::get('deleteUser/{id}',[testingController::class,'deleteUser']);
 Route::post('login',[AuthController::class,'login']);
 Route::post('register',[AuthController::class,'register']);
 Route::get('getLoggedInUser',[AuthController::class,'getLoggedInUser']);
+Route::post('logout',[UniversalController::class,'logOut']);
+Route::get('getLoggedInUserDetails',[UniversalController::class,'getLoggedInUserDetails']);
 //----
 Route::get('getCourseRev/{id}',[ReviewController::class,'getCourseReviews']);
 Route::get('getSpecificUserRev/{id}',[ReviewController::class,'getSpecificUserReviews']);
@@ -61,7 +64,7 @@ Route::get('allCategories',[categoryController::class,'getCategories']);
 Route::get('getRepliesOfReview/{id}',[AdminController::class,'getRepliesOfReview']);
 Route::get('getStudentDetails/{id}',[AdminController::class,'getStudentDetails']);
 Route::get('getAllCourses',[AdminController::class,'getAllCourses']);
-
+Route::get('getAllStudents',[AdminController::class,'getStudents']);
 Route::get('getPDFs',[CourseController::class,'getPDFs']);
 Route::get('getVideos',[CourseController::class,'getVideos']);
 
