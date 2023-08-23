@@ -14,6 +14,7 @@ class StudentController extends Controller
         $Top3Rated = Course::orderBy('rating', 'desc')->take(3)->get();
         return $Top3Rated;
     }
+
     public function GetHomeScreenData(){
         $categories = Category::all();
         $pdfs = Course::where('type','pdf')->get();
@@ -21,7 +22,7 @@ class StudentController extends Controller
         $topRated = $this->getTopRated();
         //dd(json_decode($randomcourses,true));
 
-        return response()->json(['loggedinemail'=>Auth::email(),'categories'=>$categories,'topRated'=>$topRated]);
+        return response()->json(['loggedinemail'=>Auth::user()->email,'categories'=>$categories,'topRated'=>$topRated]);
     }
 
 }

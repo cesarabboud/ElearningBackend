@@ -15,7 +15,12 @@ class AuthController extends Controller
     public function register(Request $request){
         //return response()->json(['messagee'=>'ok']);
         error_log('welcome 2 ');
-        if($request->name!='' && $request->email!='' && $request->password!=''){
+        $request->validate([
+            'name'=>'required',
+            'email'=>'required',
+            'password'=>'required',
+            'role_id'=>'required'
+        ]);
             $user = new User([
                 'name'=>$request->name,
                 'email'=>$request->email,
@@ -23,18 +28,24 @@ class AuthController extends Controller
                 'profilepicture'=>'https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png',
                 'role_id'=>$request->role_id
             ]);
+
+
             error_log('testinggg');
             error_log($request->input('password'));
             $user->save();
+            $token = $user->createToken('auth_token')->plainTextToken;
 
-
-
+            error_log('tok: '.$token);
             $credentials = $request->only('email', 'password');
             return Auth::attempt($credentials) ?
-                response()->json(['username'=>Auth::user()->name,'message'=>'logged in successfully','code'=>200]):
+                response()->json(['username'=>Auth::user()->name,
+                    'message'=>'logged in successfully',
+                    'code'=>200,
+                    'token'=>$token
+                ]):
                 response()->json(['message'=>'unsuccessful login','code'=>401]);
-        }
-        return response()->json(['message'=>'check your input fields !']);
+
+        //return response()->json(['message'=>'check your input fields !']);
         /*if (Auth::attempt($credentials)) {
             return response()->json(['username'=>Auth::user()->name,'message'=>'logged in successfully','code'=>200]);
         }
@@ -43,13 +54,21 @@ class AuthController extends Controller
 
     }
     public function login(Request $request){
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
         $loginDetails = $request->only('email', 'password');
         if(Auth::check()){
             error_log('test 1 '.Auth::user()->name);
         }
+        //token ta ya3moul request 3al api
 
         if (Auth::attempt($loginDetails)) {
+            $user = Auth::user();
+            $token = $user->createToken('auth_token')->plainTextToken;
+            error_log($token);
             if(Auth::check()){
                 error_log('id of user logged in = '.Auth::id());
             }
@@ -57,12 +76,10 @@ class AuthController extends Controller
                ['username'=>Auth::user()->name,
                 'message' => 'login successful',
                 'role'=>Auth::user()->role_id,
-                'code' => 200]);
-        } else {
-            return response()->json(['message' => 'wrong login details', 'code' => 501]);
-
+                'code' => 200,
+                'token'=>$token
+               ]);
         }
-
-
+            return response()->json(['message' => 'wrong login details', 'code' => 501]);
     }
 }

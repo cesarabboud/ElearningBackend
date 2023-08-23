@@ -21,11 +21,11 @@ class AdminController extends Controller
         return response()->json(['message'=>'no students found']);
     }
     public function getInstructors(){
-        $instructors = User::where('role_id','=',2);
+        $instructors = User::where('role_id','=',3)->get();
         if($instructors->count()!=0){
-            return response()->json(['students'=>$instructors]);
+            return response()->json(['instructors'=>$instructors,'instructorscount'=>$instructors->count()]);
         }
-        return response()->json(['message'=>'no students found']);
+        return response()->json(['message'=>'no Instructors found']);
     }
 
     public function getAllCourses(){
@@ -98,8 +98,9 @@ class AdminController extends Controller
         return response()->json(['message'=>'course not found!']);
     }
 
-    public function deleteUser($uid){
-        $userToDelete = User::find($uid);
+    public function deleteUser($id){
+        error_log('hi from delete user');
+        $userToDelete = User::find($id);
         if($userToDelete!=null){
             $userToDelete->delete();
             return response()->json(['message'=>'user deleted']);

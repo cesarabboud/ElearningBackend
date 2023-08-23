@@ -10,16 +10,16 @@ use Illuminate\Support\Facades\Auth;
 class InstructorController extends Controller
 {
     //
-    public function getInstructorProfileInfo(){
+    public function getInstructorProfileInfoStudents(){
         //students
         $studentsOfInstructor = User::select('users.*')
             ->join('orders', 'orders.user_id', '=', 'users.id')
             ->join('courses_owneds', 'courses_owneds.order_id', '=', 'orders.id')
             ->join('courses', 'courses.id', '=', 'courses_owneds.course_id')
-            ->where('courses.user_id', 3)
+            ->where('courses.user_id', Auth::id())
             ->distinct()
             ->get();
         return $studentsOfInstructor->count()>0 ? response()->json(['mystudents'=>$studentsOfInstructor])
-            : response()->json(['message'=>'no students']);
+            : response()->json(['mystudents'=>$studentsOfInstructor,'message'=>'no students']);
     }
 }

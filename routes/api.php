@@ -36,8 +36,11 @@ Route::get('deleteUser/{id}',[testingController::class,'deleteUser']);
 Route::post('login',[AuthController::class,'login']);
 Route::post('register',[AuthController::class,'register']);
 Route::get('getLoggedInUser',[AuthController::class,'getLoggedInUser']);
-Route::post('logout',[UniversalController::class,'logOut']);
-Route::get('getLoggedInUserDetails',[UniversalController::class,'getLoggedInUserDetails']);
+Route::post('logout',[UniversalController::class,'logOut'])->middleware('auth:sanctum');
+Route::group(['middleware' => ['auth:sanctum']], function () {
+
+});
+Route::get('getLoggedInUserDetails',[UniversalController::class,'getLoggedInUserDetails'])->middleware('auth:sanctum');
 //----
 Route::get('getCourseRev/{id}',[ReviewController::class,'getCourseReviews']);
 Route::get('getSpecificUserRev/{id}',[ReviewController::class,'getSpecificUserReviews']);
@@ -57,7 +60,7 @@ Route::post('addReply/{id}',[ReplyController::class,'addReply']);
 
 
 Route::post('storeCategory',[categoryController::class,'storeCategory']);
-Route::get('allCategories',[categoryController::class,'getCategories']);
+Route::get('allCategories',[categoryController::class,'getCategories'])->middleware('auth:sanctum');
 
 
 
@@ -65,6 +68,7 @@ Route::get('getRepliesOfReview/{id}',[AdminController::class,'getRepliesOfReview
 Route::get('getStudentDetails/{id}',[AdminController::class,'getStudentDetails']);
 Route::get('getAllCourses',[AdminController::class,'getAllCourses']);
 Route::get('getAllStudents',[AdminController::class,'getStudents']);
+Route::get('getAllTeachers',[AdminController::class,'getInstructors']);
 Route::get('getPDFs',[CourseController::class,'getPDFs']);
 Route::get('getVideos',[CourseController::class,'getVideos']);
 
@@ -72,5 +76,7 @@ Route::get('displayCart',[CartController::class,'displayCart']);
 Route::get('removeAll',[CartController::class,'RemoveAll']);
 
 Route::get('HomeScr',[StudentController::class,'GetHomeScreenData']);
-Route::get('topRated',[StudentController::class,'getTopRated']);
-Route::get('getInstructorProfileInfo',[InstructorController::class,'getInstructorProfileInfo']);
+Route::get('getTopRated',[StudentController::class,'getTopRated']);
+Route::get('getInstructorProfileInfo',[InstructorController::class,'getInstructorProfileInfoStudents'])->middleware('auth:sanctum');
+Route::get('deleteAcc',[UniversalController::class,'deleteMyAccount'])->middleware('auth:sanctum');
+Route::get('deleteAccUser/{id}',[AdminController::class,'deleteUser'])->middleware('auth:sanctum');
