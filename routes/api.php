@@ -71,12 +71,21 @@ Route::get('getAllStudents',[AdminController::class,'getStudents']);
 Route::get('getAllTeachers',[AdminController::class,'getInstructors']);
 Route::get('getPDFs',[CourseController::class,'getPDFs']);
 Route::get('getVideos',[CourseController::class,'getVideos']);
+Route::get('courseDetails/{id}',[CourseController::class,'getCourseDetails'])->middleware('auth:sanctum');
 
-Route::get('displayCart',[CartController::class,'displayCart']);
-Route::get('removeAll',[CartController::class,'RemoveAll']);
 
-Route::get('HomeScr',[StudentController::class,'GetHomeScreenData']);
+Route::get('displayCart',[CartController::class,'displayCart'])->middleware('auth:sanctum');
+Route::post('addItemToCart/{id}',[CartController::class,'addItemToCart'])->middleware('auth:sanctum');
+Route::get('removeItemFromCart/{id}',[CartController::class,'removeItemFromCart'])->middleware('auth:sanctum');
+Route::get('removeAll',[CartController::class,'RemoveAll'])->middleware('auth:sanctum');
+Route::get('getCartItemsNbr',[CartController::class,'getCartItemsNbr'])->middleware('auth:sanctum');
+
+
+Route::get('HomeScr',[StudentController::class,'GetHomeScreenData'])->middleware('auth:sanctum');
 Route::get('getTopRated',[StudentController::class,'getTopRated']);
 Route::get('getInstructorProfileInfo',[InstructorController::class,'getInstructorProfileInfoStudents'])->middleware('auth:sanctum');
 Route::get('deleteAcc',[UniversalController::class,'deleteMyAccount'])->middleware('auth:sanctum');
 Route::get('deleteAccUser/{id}',[AdminController::class,'deleteUser'])->middleware('auth:sanctum');
+
+
+Route::get('allCourses',[StudentController::class,'getCourses']);

@@ -45,4 +45,11 @@ class CourseController extends Controller
         return response()->json(['message'=>'no videos bought']);
     }
 
+
+    public function getCourseDetails ($cid) {
+
+        $course = Course::with('getCategory')->with('getReviews')->find($cid);
+        return response()->json(['course'=>$course,'nbrev'=>$course->getReviews->count()]);
+
+    }
 }

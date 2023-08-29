@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\CartItems;
+use App\Models\Course;
 use App\Models\CoursesOwned;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ class CartController extends Controller
     //test done
     public function displayCart()
     {
+        $cartCourses = [];
         if (Auth::check()) {
             $cart = Cart::where('user_id', '=', Auth::id())->first();
             if ($cart) {
@@ -22,16 +24,21 @@ class CartController extends Controller
                 $cartItems = CartItems::where('cart_id', '=', $cart->id)->get();
                 error_log('number of items in cart = ' . $cartItems->count());
                 if($cartItems->count()!=0){
-                    return response()->json(['cartitems'=>$cartItems]);
+                    foreach ($cartItems as $ci){
+                        $cartCourses[] = $ci->getCourse;
+                    }
+                    $prixtotal = collect($cartCourses)->sum('price');
+                    error_log($prixtotal);
+                    return response()->json([/*'cartitems'=>$cartItems,*/'cartCourses'=>$cartCourses,'prixtotal'=>$prixtotal]);
                 }
-                return response()->json(['message'=>'cart is empty!']);
+                return response()->json(['cartCourses'=>$cartCourses,'message'=>'cart is empty!']);
 
                 //return view('shoppingCart')->with('cartproducts', $cart->getProducts)->with('cartitems', $cartitemss);
             } else {
                 $newcart = new Cart();
                 $newcart->user_id = Auth::id();
                 $newcart->save();
-                return response()->json(['message'=>'cart created']);
+                return response()->json(['cartCourses'=>$cartCourses,'message'=>'cart created']);
             }
         }
         return response()->json(['message'=>'no logged in user']);
@@ -64,7 +71,7 @@ class CartController extends Controller
             }
 
             $getCartItem = CartItems::where('cart_id', '=', $cart->id)->where('course_id', '=', $id)->first();
-            //$getCartItem!=null
+
             if (!$getCartItem) {
                 $cartitem = new CartItems();
                 $cartitem->cart_id = $cart->id;
@@ -72,7 +79,7 @@ class CartController extends Controller
                 $cartitem->save();
                 return response()->json(['message'=>'item added']);
             }
-
+            return response()->json(['message'=>'item already in cart!']);
         }
     }
     public function removeItemFromCart($id)
@@ -92,8 +99,15 @@ class CartController extends Controller
             }
         }
         if ($cartisfound == true) {
-            $cartitem = CartItems::where('course_id', '=', $id)->where('cart_id', '=', $cart->id)->first();
-            $cartitem->delete();
+            $course = Course::find($id);
+            $cartitem = CartItems::where('course_id', '=', $course->id)->where('cart_id', '=', $cart->id)->first();
+            if($cartitem){
+                error_log($cartitem->count());
+                $cartitem->delete();
+                error_log($cartitem->count());
+                return response()->json(['cii'=>$cartitem,'message'=>'course removed from cart having id = '.$cartitem->course_id.' !']);
+            }
+            return response()->json(['message'=>'course not found']);
         }
     }
     //test done
@@ -102,18 +116,20 @@ class CartController extends Controller
         error_log('test1');
         if(Auth::check()){
             $cart = Cart::where('user_id', '=', Auth::id())->first();
-
-            $cartitems = CartItems::where('cart_id', '=', $cart->id)->get();
-            if($cartitems->count()>0){
-                foreach ($cartitems as $ci) {
-                    if ($ci->cart_id == $cart->id) {
-                        error_log('test');
-                        $ci->delete();
+            if($cart){
+                $cartitems = CartItems::where('cart_id', '=', $cart->id)->get();
+                if($cartitems->count()>0){
+                    foreach ($cartitems as $ci) {
+                        if ($ci->cart_id == $cart->id) {
+                            error_log('test');
+                            $ci->delete();
+                        }
                     }
+                    return response()->json(['message'=>'cart cleared!']);
                 }
-                return response()->json(['message'=>'cart cleared!']);
+                return response()->json(['message'=>'no items in cart to be cleared !']);
             }
-            return response()->json(['message'=>'no items in cart to be cleared !']);
+            return response()->json(['message'=>'you have no cart']);
         }
         return response()->json(['message'=>'no user logged in']);
 
@@ -144,5 +160,13 @@ class CartController extends Controller
                 $ci->delete();
             }
         }
+    }
+    public function getCartItemsNbr(){
+        $cart = Cart::where('user_id', '=', Auth::id())->first();
+        $cartitems = CartItems::where('cart_id', '=', $cart->id)->get();
+        if($cartitems->count()>0){
+            return response()->json(['nbr'=>$cartitems->count()]);
+        }
+        return response()->json(['nbr'=>0]);
     }
 }

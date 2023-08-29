@@ -27,5 +27,6 @@ class categoryController extends Controller
         //dd(count($allCategories->toArray()));
         //dd(response()->json(['msg'=>'test'])->content());
         return response()->json(['categories'=>$allCategories]);
+        
     }
 }
