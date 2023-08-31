@@ -52,6 +52,12 @@ class User extends Authenticatable
     public function getReplies(){
         return $this->hasMany(Reply::class);
     }
+    public function getQuestions(){
+        return $this->hasMany(Question::class);
+    }
+    public function getAnswers(){
+        return $this->hasMany(Answer::class);
+    }
     /**
      * The attributes that should be cast.
      *
