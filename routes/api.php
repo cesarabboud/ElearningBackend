@@ -13,6 +13,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\InstructorController;
 use App\Http\Controllers\UniversalController;
+use App\Http\Controllers\QAController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -89,3 +90,15 @@ Route::get('deleteAccUser/{id}',[AdminController::class,'deleteUser'])->middlewa
 
 
 Route::get('allCourses',[StudentController::class,'getCourses']);
+
+
+
+Route::get('allQ',[QAController::class,'getAllQuestions']);
+Route::get('answers/{id}',[QAController::class,'getAnswersOfQuestion']);
+Route::post('askQuestion',[QAController::class,'askQuestion']);
+Route::post('respondToQuestion/{id}',[QAController::class,'respondToQuestion']);
+Route::get('answeredOrNot/{id}',[QAController::class,'answeredOrNot']);
+Route::post('searchQuest',[QAController::class,'searchQuestions']);
+
+Route::get('canReview/{id}',[StudentController::class,'canReview'])->middleware('auth:sanctum');
+Route::post('uploadPDF',[InstructorController::class,'uploadPDF']);

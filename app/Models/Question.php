@@ -14,4 +14,8 @@ class Question extends Model
     public function getAnswers(){
         return $this->hasMany(Answer::class);
     }
+    public function getAnswersCountAttribute()
+    {
+        return $this->getAnswers()->count();
+    }
 }
