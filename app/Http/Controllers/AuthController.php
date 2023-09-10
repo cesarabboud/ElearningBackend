@@ -14,6 +14,12 @@ class AuthController extends Controller
     //
     public function register(Request $request){
         //return response()->json(['messagee'=>'ok']);
+        $imageUrl = 'https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png';
+        $imageData = file_get_contents($imageUrl);
+        $fileName = time() . '_myImage.png';
+        $filePath = public_path('uploads/' . $fileName);
+        $tosave = 'uploads/'.$fileName;
+        file_put_contents($filePath, $imageData);
         error_log('welcome 2 ');
         $request->validate([
             'name'=>'required',
@@ -25,7 +31,7 @@ class AuthController extends Controller
                 'name'=>$request->name,
                 'email'=>$request->email,
                 'password'=>Hash::make($request->password),
-                'profilepicture'=>'https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png',
+                'profilepicture'=>$tosave,
                 'role_id'=>$request->role_id
             ]);
 

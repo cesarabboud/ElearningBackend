@@ -16,11 +16,12 @@ class ReviewController extends Controller
     //test done
     public function getCourseReviews($id){
         $course = Course::find($id);
-        $arrayData = json_decode($course->getReviews,true);
-        if($arrayData == null){
-            throw new Exception('invalid JSON format');
+        $arrayData = $course->getReviews()->with('getUser')->get();
+        $sum=0;
+        foreach ($arrayData as $review) {
+            $sum += $review['rating'];
         }
-        return $arrayData;
+        return response()->json(['reviews'=>$arrayData,'avg'=>floor($sum/$arrayData->count())]);
     }
     //test done
     public function postReview($cid,Request $request){
@@ -31,7 +32,7 @@ class ReviewController extends Controller
             $review->content = $request->desc;
             $review->rating = $request->rating;
             $review->course_id=$course->id;
-            $review->user_id=1;
+            $review->user_id=Auth::id();
             $review->save();
             $reviewsSum=0;
             $nbReviews = $course->getReviews->count();
@@ -115,4 +116,5 @@ class ReviewController extends Controller
         return response()->json(['message' => 'User not found.']);
 
     }
+
 }

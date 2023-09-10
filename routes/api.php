@@ -43,10 +43,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 });
 Route::get('getLoggedInUserDetails',[UniversalController::class,'getLoggedInUserDetails'])->middleware('auth:sanctum');
 //----
-Route::get('getCourseRev/{id}',[ReviewController::class,'getCourseReviews']);
+Route::get('getCourseRev/{id}',[ReviewController::class,'getCourseReviews'])->middleware('auth:sanctum');
 Route::get('getSpecificUserRev/{id}',[ReviewController::class,'getSpecificUserReviews']);
 Route::get('deleteReview/{id}',[ReviewController::class,'deleteReview']);
-Route::post('postReview/{id}',[ReviewController::class,'postReview']);
+Route::post('postReview/{id}',[ReviewController::class,'postReview'])->middleware('auth:sanctum');
 Route::get('likeReview/{id}',[ReviewController::class,'likeReview']);
 Route::get('dislikeReview/{id}',[ReviewController::class,'dislikeReview']);
 Route::get('getMyReviews',[ReviewController::class,'getMyReviews']);
@@ -70,35 +70,41 @@ Route::get('getStudentDetails/{id}',[AdminController::class,'getStudentDetails']
 Route::get('getAllCourses',[AdminController::class,'getAllCourses']);
 Route::get('getAllStudents',[AdminController::class,'getStudents']);
 Route::get('getAllTeachers',[AdminController::class,'getInstructors']);
-Route::get('getPDFs',[CourseController::class,'getPDFs']);
-Route::get('getVideos',[CourseController::class,'getVideos']);
+Route::get('getPDFs',[CourseController::class,'getPDFs'])->middleware('auth:sanctum');
+Route::get('getVideos',[CourseController::class,'getVideos'])->middleware('auth:sanctum');
 Route::get('courseDetails/{id}',[CourseController::class,'getCourseDetails'])->middleware('auth:sanctum');
-
+Route::get('types',[CourseController::class,'getTypes']);
 
 Route::get('displayCart',[CartController::class,'displayCart'])->middleware('auth:sanctum');
 Route::post('addItemToCart/{id}',[CartController::class,'addItemToCart'])->middleware('auth:sanctum');
 Route::get('removeItemFromCart/{id}',[CartController::class,'removeItemFromCart'])->middleware('auth:sanctum');
 Route::get('removeAll',[CartController::class,'RemoveAll'])->middleware('auth:sanctum');
 Route::get('getCartItemsNbr',[CartController::class,'getCartItemsNbr'])->middleware('auth:sanctum');
-
+Route::post('checkoutCart',[CartController::class,'clearCart'])->middleware('auth:sanctum');
 
 Route::get('HomeScr',[StudentController::class,'GetHomeScreenData'])->middleware('auth:sanctum');
 Route::get('getTopRated',[StudentController::class,'getTopRated']);
+Route::get('getTopRated2',[StudentController::class,'getTopRated2']);
+Route::post('searchCourseByName',[CourseController::class,'searchCourseByName'])->middleware('auth:sanctum');
+Route::post('searchCourseByFilters',[CourseController::class,'searchCourseByFilters'])->middleware('auth:sanctum');
+
 Route::get('getInstructorProfileInfo',[InstructorController::class,'getInstructorProfileInfoStudents'])->middleware('auth:sanctum');
 Route::get('deleteAcc',[UniversalController::class,'deleteMyAccount'])->middleware('auth:sanctum');
 Route::get('deleteAccUser/{id}',[AdminController::class,'deleteUser'])->middleware('auth:sanctum');
+Route::post('editProfile',[UniversalController::class,'editProfile'])->middleware('auth:sanctum');
 
-
-Route::get('allCourses',[StudentController::class,'getCourses']);
+Route::get('recentCourses',[StudentController::class,'getCourses']);
 
 
 
 Route::get('allQ',[QAController::class,'getAllQuestions']);
 Route::get('answers/{id}',[QAController::class,'getAnswersOfQuestion']);
-Route::post('askQuestion',[QAController::class,'askQuestion']);
+Route::post('askQuestion',[QAController::class,'askQuestion'])->middleware('auth:sanctum');
 Route::post('respondToQuestion/{id}',[QAController::class,'respondToQuestion']);
 Route::get('answeredOrNot/{id}',[QAController::class,'answeredOrNot']);
 Route::post('searchQuest',[QAController::class,'searchQuestions']);
 
 Route::get('canReview/{id}',[StudentController::class,'canReview'])->middleware('auth:sanctum');
-Route::post('uploadPDF',[InstructorController::class,'uploadPDF']);
+Route::post('uploadPDF',[InstructorController::class,'uploadPDF'])->middleware('auth:sanctum');
+
+Route::get('getRecentUploads',[StudentController::class,'getRecentUploads']);

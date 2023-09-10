@@ -71,7 +71,7 @@ class AdminController extends Controller
         $videosOwned=[];
         foreach ($orderByUser as $o){
             foreach ($o->getCoursesOwned as $c){
-                if($c->getCourse->type == 'video'){
+                if($c->getCourse->type == 'mp4'){
                     $videosOwned[]=$c;
                 }
             }
@@ -88,6 +88,7 @@ class AdminController extends Controller
         }
         return response()->json(['message'=>'student not found']);
     }
+
 
     public function deleteCourse($cid){
         $course = Course::find($cid);

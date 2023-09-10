@@ -71,12 +71,25 @@ class CartController extends Controller
             }
 
             $getCartItem = CartItems::where('cart_id', '=', $cart->id)->where('course_id', '=', $id)->first();
+            $uId = Auth::id();
+            $ownsCourse = CoursesOwned::where('course_id', $id)
+                ->whereHas('getOrder.getUser', function ($query) use ($uId) {
+                    $query->where('user_id', $uId);
+                })
+                ->exists();
+            if($ownsCourse === false){
+                error_log('course not bought before');
+            }
+            else{
+                error_log('ownsCourse'.$ownsCourse);
+            }
 
-            if (!$getCartItem) {
+            if (!$getCartItem && !$ownsCourse) {
                 $cartitem = new CartItems();
                 $cartitem->cart_id = $cart->id;
                 $cartitem->course_id = $id;
                 $cartitem->save();
+                error_log('cartItem saved !');
                 return response()->json(['message'=>'item added']);
             }
             return response()->json(['message'=>'item already in cart!']);
@@ -160,6 +173,7 @@ class CartController extends Controller
                 $ci->delete();
             }
         }
+        return response()->json(['message'=>'cart is now empty !']);
     }
     public function getCartItemsNbr(){
         $cart = Cart::where('user_id', '=', Auth::id())->first();

@@ -37,6 +37,7 @@ class InstructorController extends Controller
        $request->file('myfile')->move(public_path('uploads'),$filename);
         $tosave= 'uploads/'.$filename;
 
+
        //for img
         $originalpicname = $request->file('image')->getClientOriginalName();
         error_log($originalpicname);
@@ -50,9 +51,10 @@ class InstructorController extends Controller
        $course->type=$request->type;
        $course->title=$request->title;
        $course->description = $request->description;
-       $course->user_id= 3;
+       $course->user_id= Auth::id();
        $course->thumbnail= $pictosave;
        $course->price= $request->price;
+
 
        $course->size= $request->size;
        $course->rating= 0;

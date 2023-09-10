@@ -17,7 +17,10 @@ class StudentController extends Controller
         $Top3Rated = Course::orderBy('rating', 'desc')->take(3)->get();
         return $Top3Rated;
     }
-
+    public function getTopRated2(){
+        $Top3Rated = Course::orderBy('rating', 'desc')->with('getCategory')->with('getUser')->take(3)->get();
+        return response()->json(['courses'=>$Top3Rated]);
+    }
     public function GetHomeScreenData(){
         $categories = Category::inRandomOrder()->take(3)->get();
         $pdfs = Course::where('type','pdf')->get();
@@ -30,10 +33,10 @@ class StudentController extends Controller
 
     public function getRecentUploads(){
         $recentRows = Course::orderBy('created_at', 'desc')->take(3)->get();
-        return response()->json(['recentrows'=>$recentRows]);
+        return response()->json(['courses'=>$recentRows]);
     }
     public function getCourses(){
-        $courses = Course::with('getCategory')->with('getUser')->get();
+        $courses = Course::orderBy('created_at', 'desc')->with('getCategory')->with('getUser')->take(5)->get();
         return response()->json(['courses'=>$courses]);
     }
     public function canReview($cid){
@@ -48,6 +51,6 @@ class StudentController extends Controller
                 ->exists();
                 return response()->json(['message'=> $isOwned ? 'owned' : 'unowned']);
         }
-        response()->json(['message'=>'no course found']);
+        return response()->json(['message'=>'no course found']);
     }
 }

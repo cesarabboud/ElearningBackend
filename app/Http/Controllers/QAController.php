@@ -7,6 +7,7 @@ use App\Models\Question;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Queue\QueueServiceProvider;
+use Illuminate\Support\Facades\Auth;
 use function Termwind\renderUsing;
 
 class QAController extends Controller
@@ -33,7 +34,7 @@ class QAController extends Controller
         ]);
         $quest = new Question();
         $quest->question = $request->question;
-        $quest->user_id = 6 ;
+        $quest->user_id = Auth::id() ;
         $quest->save();
         return response()->json(['message'=>Question::all()]);
     }
@@ -41,7 +42,7 @@ class QAController extends Controller
     public function getAnswersOfQuestion($id){
         $quest = Question::find($id);
         if($quest){
-            $answers = $quest->getAnswers;
+            $answers = $quest->getAnswers()->with('getUser')->get();
             if($answers->count()>0){
                 return response()->json(['answers'=>$answers]);
             }
@@ -66,12 +67,15 @@ class QAController extends Controller
     public function respondToQuestion($qid,Request $request){
         $quest = Question::find($qid);
         if($quest){
-            $answer = new Answer();
-            $answer->answer=$request->answer;
-            $answer->question_id = $quest->id;
-            $answer->user_id = 6 ;
-            $answer->save();
-            return 'answer added !';
+            if($request->answer !=='' || $request->answer !== null){
+                $answer = new Answer();
+                $answer->answer=$request->answer;
+                $answer->question_id = $quest->id;
+                $answer->user_id = 6 ;
+                $answer->save();
+                return response()->json(['msg'=>'answer added']);
+            }
+            return response()->json(['msg'=>'answer field is empty']);
         }
         return response()->json(['msg'=>'no question found !']);
     }
