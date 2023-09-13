@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Answer;
 use App\Models\Course;
 use App\Models\Order;
+use App\Models\Question;
 use App\Models\Reply;
 use App\Models\Review;
 use App\Models\User;
@@ -90,6 +92,20 @@ class AdminController extends Controller
     }
 
 
+    public function getStats(){
+        $getNbStudents = User::where('role_id','=',2)->count();
+        $getNbTeachers = User::where('role_id','=',3)->count();
+        $getNbCourses = Course::all()->count();
+        $getNbReviews = Review::all()->count();
+        $getNbQuestions = Question::all()->count();
+        $getNbAnswers = Answer::all()->count();
+        $arr = [$getNbStudents,$getNbTeachers,$getNbCourses,$getNbReviews,$getNbQuestions,$getNbAnswers];
+        return  response()->json(['arr'=>$arr]);
+        return response()->json(['nbS'=>$getNbStudents,'nbT'=>$getNbTeachers,
+            'nbC'=>$getNbCourses,'nbR'=>$getNbReviews,
+            'nbQ'=>$getNbQuestions]);
+    }
+
     public function deleteCourse($cid){
         $course = Course::find($cid);
         if($course!=null){
@@ -109,5 +125,26 @@ class AdminController extends Controller
         return response()->json(['message'=>'the user you are trying to delete is not found']);
     }
 
+    public function getAvgCoursesPricesByType(){
+
+        $pdfAvg = Course::where('type', 'pdf')->avg('price');
+        $pptxAvg = Course::where('type', 'pptx')->avg('price');
+        $docxAvg = Course::where('type', 'docx')->avg('price');
+        $mp4Avg = Course::where('type', 'mp4')->avg('price');
+
+        $pricesArr = [round($pdfAvg,2),round($pptxAvg,2),round($docxAvg,2),round($mp4Avg,2)];
+        $types = ['pdf','pptx','docx','mp4'];
+        return response()->json(['types'=>$types,'prices'=>$pricesArr]);
+    }
+    public function getPercentages(){
+        $getTotalCourses = Course::all()->count();
+        $pdfAvg = round((Course::where('type', 'pdf')->count()*100)/$getTotalCourses,2);
+        $pptxAvg = round((Course::where('type', 'pptx')->count()*100)/$getTotalCourses,2);
+        $docxAvg = round((Course::where('type', 'docx')->count()*100)/$getTotalCourses,2);
+        $mp4Avg = round((Course::where('type', 'mp4')->count()*100)/$getTotalCourses,2);
+//        $mp4Avg2 = (Course::where('type', 'video')->count()*100)/$getTotalCourses;
+        return [$pdfAvg,$pptxAvg,$docxAvg,$mp4Avg];
+
+    }
 
 }

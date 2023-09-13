@@ -26,7 +26,7 @@ class InstructorController extends Controller
     }
     public function uploadPDF(Request $request){
         $request->validate([
-            'myfile'=>'required|mimes:xlsx,csv,txt,xlx,xls,pdf,doc,docx,ppt,pptx,mp4|max:30720',
+            'myfile'=>'required|mimes:xlsx,csv,txt,xlx,xls,pdf,doc,docx,ppt,pptx,mp4|max:102400',
             'image'=>'required|mimes:jpeg,png,gif,jpg'
         ]);
         //for file
@@ -36,6 +36,7 @@ class InstructorController extends Controller
         error_log("the new file name is:" . $filename);
        $request->file('myfile')->move(public_path('uploads'),$filename);
         $tosave= 'uploads/'.$filename;
+
 
 
        //for img

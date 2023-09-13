@@ -14,7 +14,7 @@ class StudentController extends Controller
     //
 
     public function getTopRated(){
-        $Top3Rated = Course::orderBy('rating', 'desc')->take(3)->get();
+        $Top3Rated = Course::orderBy('rating', 'desc')->with('getCategory')->take(3)->get();
         return $Top3Rated;
     }
     public function getTopRated2(){

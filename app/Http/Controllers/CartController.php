@@ -83,7 +83,9 @@ class CartController extends Controller
             else{
                 error_log('ownsCourse'.$ownsCourse);
             }
-
+            if($ownsCourse === true){
+                return response()->json(['message'=>'bought']);
+            }
             if (!$getCartItem && !$ownsCourse) {
                 $cartitem = new CartItems();
                 $cartitem->cart_id = $cart->id;

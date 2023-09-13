@@ -26,7 +26,9 @@ class ReviewController extends Controller
     //test done
     public function postReview($cid,Request $request){
         $course = Course::find($cid);
-
+        error_log($cid);
+        error_log($request->desc);
+        error_log($request->rating);
         if( $course!=null && $request->desc!='' && $request->rating!=null /*&& Auth::check()*/ ){
             $review = new Review();
             $review->content = $request->desc;

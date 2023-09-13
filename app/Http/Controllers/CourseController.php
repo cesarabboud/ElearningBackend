@@ -43,7 +43,7 @@ class CourseController extends Controller
         }
         //dd(count($coursesOwned));
         if(count($videosOwned)>0){
-            return response()->json(['videos'=>$videosOwned]);
+            return response()->json(['videos'=>$videosOwned,'nbVideos'=>count($videosOwned)]);
         }
         return response()->json(['message'=>'no videos bought']);
     }
@@ -55,12 +55,25 @@ class CourseController extends Controller
         return response()->json(['course'=>$course,'nbrev'=>$course->getReviews->count()]);
 
     }
+    public function getnbVideos(){
+        $orderByUser = Order::where('user_id','=',Auth::id())->get();
+        $videosOwned=[];
+        foreach ($orderByUser as $o){
+            foreach ($o->getCoursesOwned as $c){
+                if($c->getCourse->type == 'mp4'){
+                    $videosOwned[]=$c;
+                }
+            }
+        }
+        //dd(count($coursesOwned));
+        return(count($videosOwned));
+    }
     public function getTypes(){
         $uniqueTypes = Course::distinct()->pluck('type');
         return response()->json(['uniqueTypes'=>$uniqueTypes]);
     }
     public function searchCourseByName(Request $request){
-        $coursesList = Course::where('title','like','%'.$request->title.'%')->get();
+        $coursesList = Course::where('title','like','%'.$request->title.'%')->with('getCategory')->get();
         if($coursesList->count()>0){
             return response()->json(['courses'=>$coursesList,'nbcourses'=>$coursesList->count()]);
         }

@@ -71,7 +71,7 @@ class QAController extends Controller
                 $answer = new Answer();
                 $answer->answer=$request->answer;
                 $answer->question_id = $quest->id;
-                $answer->user_id = 6 ;
+                $answer->user_id = Auth::id() ;
                 $answer->save();
                 return response()->json(['msg'=>'answer added']);
             }
@@ -96,5 +96,17 @@ class QAController extends Controller
             return response()->json(['questions'=>$questions]);
         }
         return response()->json(['questions'=>$questions,'msg'=>'no questions']);
+    }
+
+    public function deleteAnswer($aId){
+        $answerToDelete = Answer::find($aId);
+
+        if($answerToDelete){
+            $qId = $answerToDelete->question_id;
+            $answerToDelete->delete();
+            $answers = Answer::where('question_id','=',$qId)->with('getUser')->get();
+            return response()->json(['message'=>'answer deleted','newAnswers'=>$answers]);
+        }
+        return response()->json(['message'=>'answer id not found']);
     }
 }

@@ -75,6 +75,9 @@ Route::get('getVideos',[CourseController::class,'getVideos'])->middleware('auth:
 Route::get('courseDetails/{id}',[CourseController::class,'getCourseDetails'])->middleware('auth:sanctum');
 Route::get('types',[CourseController::class,'getTypes']);
 
+
+
+
 Route::get('displayCart',[CartController::class,'displayCart'])->middleware('auth:sanctum');
 Route::post('addItemToCart/{id}',[CartController::class,'addItemToCart'])->middleware('auth:sanctum');
 Route::get('removeItemFromCart/{id}',[CartController::class,'removeItemFromCart'])->middleware('auth:sanctum');
@@ -100,11 +103,18 @@ Route::get('recentCourses',[StudentController::class,'getCourses']);
 Route::get('allQ',[QAController::class,'getAllQuestions']);
 Route::get('answers/{id}',[QAController::class,'getAnswersOfQuestion']);
 Route::post('askQuestion',[QAController::class,'askQuestion'])->middleware('auth:sanctum');
-Route::post('respondToQuestion/{id}',[QAController::class,'respondToQuestion']);
+Route::post('respondToQuestion/{id}',[QAController::class,'respondToQuestion'])->middleware('auth:sanctum');
 Route::get('answeredOrNot/{id}',[QAController::class,'answeredOrNot']);
 Route::post('searchQuest',[QAController::class,'searchQuestions']);
+Route::get('deleteAnswer/{id}',[QAController::class,'deleteAnswer']);
 
 Route::get('canReview/{id}',[StudentController::class,'canReview'])->middleware('auth:sanctum');
 Route::post('uploadPDF',[InstructorController::class,'uploadPDF'])->middleware('auth:sanctum');
 
 Route::get('getRecentUploads',[StudentController::class,'getRecentUploads']);
+
+//Route::get('getVideos',[CourseController::class,'getVideos'])->middleware('auth:sanctum');
+
+Route::get('getStats',[AdminController::class,'getStats']);
+Route::get('getAvgCoursesPricesByType',[AdminController::class,'getAvgCoursesPricesByType']);
+Route::get('getPercentages',[AdminController::class,'getPercentages']);
