@@ -67,4 +67,9 @@ class InstructorController extends Controller
        error_log('course saved');
        return response()->json(['msg'=>'course saved!']);
     }
+
+    public function getMyLessons($uid){
+        $relatedCourses = Course::where('user_id', $uid)->with('getCategory')->with('getUser')->get()->groupBy('type');
+        return response()->json(['courses' => $relatedCourses]);
+    }
 }

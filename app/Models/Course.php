@@ -27,4 +27,12 @@ class Course extends Model
     public function getCoursesOwned(){
         return $this->hasMany(CoursesOwned::class);
     }
+
+    public function getFavorites(){
+        return $this->belongsToMany(User::class,'favorites','course_id','user_id');
+    }
+
+    public function getQuizzes(){
+        return $this->hasMany(Quiz::class);
+    }
 }

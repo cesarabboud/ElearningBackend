@@ -27,10 +27,12 @@ class StudentController extends Controller
         $videos = Course::where('type','video')->get();
         $topRated = $this->getTopRated();
         //dd(json_decode($randomcourses,true));
-
-        return response()->json(['categories'=>$categories,'topRated'=>$topRated,'uname'=>Auth::user()->name]);
+        $instuctors = User::inRandomOrder()->where('role_id',3)->take(3)->get();
+        return response()->json(['categories'=>$categories,'topRated'=>$topRated,'uname'=>Auth::user()->name,'mentors'=>$instuctors]);
     }
-
+    public function getLoggedInUserName(){
+        return response()->json(['uname'=>Auth::user()->name]);
+    }
     public function getRecentUploads(){
         $recentRows = Course::orderBy('created_at', 'desc')->take(3)->get();
         return response()->json(['courses'=>$recentRows]);
@@ -52,5 +54,32 @@ class StudentController extends Controller
                 return response()->json(['message'=> $isOwned ? 'owned' : 'unowned']);
         }
         return response()->json(['message'=>'no course found']);
+    }
+
+    public function getMentors(){
+        $mentorsList = User::where('role_id', 3)
+            ->with(['getCourses.getCategory']) // Eager load courses and their categories
+            ->get();
+
+        // Transform the data to include categories
+        $mentorsWithCategories = $mentorsList->map(function ($mentor) {
+            $mentorCourses = $mentor->getCourses->map(function ($course) {
+                return [
+                    'course_id' => $course->id,
+                    'title' => $course->title,
+                    'category_id' => $course->getCategory->id,
+                    'catName' => $course->getCategory->name,
+                ];
+            });
+
+            return [
+                'id' => $mentor->id,
+                'name' => $mentor->name,
+                'profilepicture' => $mentor->profilepicture,
+                'courses' => $mentorCourses,
+            ];
+        });
+
+        return response()->json(['mentors' => $mentorsWithCategories, 'count' => $mentorsList->count()]);
     }
 }

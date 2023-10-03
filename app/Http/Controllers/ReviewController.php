@@ -16,12 +16,28 @@ class ReviewController extends Controller
     //test done
     public function getCourseReviews($id){
         $course = Course::find($id);
-        $arrayData = $course->getReviews()->with('getUser')->get();
+//        $course = Course::with('getCategory')->with('getReviews')->find($cid);
+        $arrayData = $course->getReviews()->with('getReplies')->withCount('getReplies')->with('getReplies.getUser')->with('getUser')->get();
         $sum=0;
-        foreach ($arrayData as $review) {
-            $sum += $review['rating'];
+        $avg=0;
+        if($arrayData->count()>0){
+            $rating1 = ($course->getReviews()->whereBetween('rating',[0,1])->count()*100)/$course->getReviews()->count();
+            $rating2 = ($course->getReviews()->where('rating',2)->count()*100)/$course->getReviews()->count();
+            $rating3 = ($course->getReviews()->where('rating',3)->count()*100)/$course->getReviews()->count();
+            $rating4 = ($course->getReviews()->where('rating',4)->count()*100)/$course->getReviews()->count();
+            $rating5 = ($course->getReviews()->where('rating',5)->count()*100)/$course->getReviews()->count();
+            $percentagesArr = [$rating5,$rating4,$rating3,$rating2,$rating1];
+            foreach ($arrayData as $review) {
+                $sum += $review['rating'];
+            }
+            $avg = floor($sum/$arrayData->count());
+
+            return response()->json(['uId'=>Auth::id(),'reviews'=>$arrayData,'avg'=>$avg,'percentages'=>$percentagesArr]);
         }
-        return response()->json(['reviews'=>$arrayData,'avg'=>floor($sum/$arrayData->count())]);
+
+
+        return response()->json(['msg'=>'no reviews','reviews'=>$arrayData,'percentages'=>[]]);
+
     }
     //test done
     public function postReview($cid,Request $request){
@@ -57,8 +73,13 @@ class ReviewController extends Controller
     //test done
     public function deleteReview($id){
         $rev = Review::find($id);
+        $courseCheck = $rev->getCourse;
         if($rev){
             $rev->delete();
+            if($courseCheck->getReviews->count() === 0){
+                $courseCheck->rating = 0;
+                $courseCheck->save();
+            }
             return response()->json(['message'=>'record deleted!']);
         }
         return response()->json(['message'=>'no record found!']);

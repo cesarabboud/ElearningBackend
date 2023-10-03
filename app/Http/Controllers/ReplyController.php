@@ -14,7 +14,8 @@ class ReplyController extends Controller
         $review = Review::find($rid);
         if($review!=null){
             if ($review->getReplies->count()>0){
-                return $review->getReplies;
+                $replies = Reply::where('review_id',$review->id)->with('getUser')->get();
+                return response()->json(['associatedReplies'=>$replies]);
             }
             return response()->json(['message'=>'no replies!']);
         }
@@ -45,10 +46,16 @@ class ReplyController extends Controller
     }
     //test done
     public function deleteReply($replyId){
+
         $replyToDelete = Reply::find($replyId);
+
+
+
         if($replyToDelete){
             $replyToDelete->delete();
-            return response()->json(['msg'=>'reply deleted']);
+            $revId = $replyToDelete->review_id;
+            $RepliesToRev = Review::find($revId)->getReplies()->with('getUser')->get();
+            return response()->json(['repliesArr'=>$RepliesToRev,'msg'=>'reply deleted']);
         }
         return response()->json(['msg'=>'no reply found']);
     }
@@ -60,7 +67,7 @@ class ReplyController extends Controller
             if($request->response!=''){
                 $reply->response = $request->response;
                 $reply->review_id=$reviewToReply->id;
-                $reply->user_id=1;
+                $reply->user_id=Auth::id();
                 $reply->save();
                 return response()->json(['message'=>'reply submitted']);
             }

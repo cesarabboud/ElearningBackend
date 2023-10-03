@@ -157,7 +157,7 @@ class CartController extends Controller
         $cart = Cart::where('user_id', '=', Auth::id())->first();
         $cartitems = CartItems::where('cart_id', '=', $cart->id)->get();
         $o = new Order();
-        $o->orderDate = Carbon::now();
+        $o->orderDate = Carbon::now()->addHours(3);
         $o->user_id = Auth::id();
         $o->save();
 

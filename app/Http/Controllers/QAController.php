@@ -109,4 +109,27 @@ class QAController extends Controller
         }
         return response()->json(['message'=>'answer id not found']);
     }
+
+    public function approveAnswer($aId){
+        $answerToApprove = Answer::find($aId);
+        if($answerToApprove){
+            if($answerToApprove->answered === 1){
+                return 'already approved';
+            }
+            $answerToApprove->answered = 1;
+            $answerToApprove->save();
+            return response()->json(['message'=>'approved!']);
+        }
+    }
+    public function disapproveAnswer($aId){
+        $answerToApprove = Answer::find($aId);
+        if($answerToApprove){
+            if($answerToApprove->answered === 0){
+                return 'already disapproved';
+            }
+            $answerToApprove->answered = 0;
+            $answerToApprove->save();
+            return response()->json(['message'=>'disapproved!']);
+        }
+    }
 }

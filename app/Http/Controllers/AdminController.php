@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Answer;
 use App\Models\Course;
+use App\Models\CoursesOwned;
 use App\Models\Order;
 use App\Models\Question;
+use App\Models\Quiz;
 use App\Models\Reply;
 use App\Models\Review;
 use App\Models\User;
@@ -84,9 +86,27 @@ class AdminController extends Controller
     public function getStudentDetails($sid){
         $student = User::find($sid);
         if($student!=null){
-            $nbPDFsTaken = $this->getnbPDFs($student->id);
-            $nbVideosTaken = $this->getnbVideos($student->id);
-            return response()->json(['student'=>$student,'nbofPDFs'=>$nbPDFsTaken,'nbVidsTaken'=>$nbVideosTaken]);
+            $coursesOwnedByStudent = Order::where('user_id', $student->id)
+                ->with('getCoursesOwned.getCourse') // Eager load the courses relationship
+                ->with('getCoursesOwned.getCourse.getCategory')
+                ->with('getCoursesOwned.getCourse.getUser')
+                ->get()
+                ->pluck('getCoursesOwned')
+                ->flatten()
+                ->groupBy(function ($courseOwned) {
+                    return $courseOwned->getCourse->type;
+                });
+            $courseCountsByType = [];
+            // Loop through the grouped courses and count them for each type
+            foreach ($coursesOwnedByStudent as $type => $courses) {
+                $courseCountsByType[$type] = count($courses);
+            }
+            $tot = 0;
+            foreach ($courseCountsByType as $val){
+                $tot += $val;
+            }
+
+            return response()->json(['pp'=>$student->profilepicture,'nbCourses'=>$tot,'reviews'=>$student->getReviews()->with('getUser')->with('getCourse')->get()]);
         }
         return response()->json(['message'=>'student not found']);
     }
@@ -147,4 +167,85 @@ class AdminController extends Controller
 
     }
 
+    public function getLeaders()
+    {
+        $leaders = User::has('getQuizzes')
+            ->join('quizzes', 'users.id', '=', 'quizzes.user_id')
+            ->selectRaw('users.id, users.name, ROUND(AVG(quizzes.grade), 1) as averageScore')
+            ->groupBy('users.id', 'users.name')
+            ->orderBy('averageScore', 'desc')
+            ->take(3)
+            ->get();
+
+        return response()->json(['leaders'=>$leaders]);
+
+    }
+    public function getAverageQuizScores()
+    {
+        $users = User::has('getQuizzes')
+            ->join('quizzes', 'users.id', '=', 'quizzes.user_id')
+            ->selectRaw('users.id, users.name,users.profilepicture, ROUND(AVG(quizzes.grade), 1) as averageScore')
+            ->groupBy('users.id', 'users.name', 'users.profilepicture')
+            ->orderBy('averageScore', 'desc')
+            ->get();
+
+        return response()->json(['students'=>$users]);
+
+    }
+
+    public function getMentorCourses($uId){
+        $mentorCourses= Course::where('user_id',$uId)->with('getCategory')->with('getUser')->get()->groupBy('type');
+        return response()->json(['courses'=>$mentorCourses]);
+    }
+
+    public function studentsPerformance(){
+        $users = User::has('getQuizzes')
+            ->join('quizzes', 'users.id', '=', 'quizzes.user_id')
+            ->selectRaw('users.id, users.name, users.profilepicture, ROUND(AVG(quizzes.grade)) as averageScore')
+            ->groupBy('users.id', 'users.name', 'users.profilepicture')
+            ->orderBy('averageScore', 'desc')
+            ->get();
+        $studentCountWithAverageGrade0 = User::has('getQuizzes')
+            ->join('quizzes', 'users.id', '=', 'quizzes.user_id')
+            ->selectRaw('users.id, users.name, users.profilepicture, ROUND(AVG(quizzes.grade)) as averageScore')
+            ->groupBy('users.id', 'users.name', 'users.profilepicture')
+            ->havingRaw('ROUND(AVG(quizzes.grade)) = ?', [0])
+            ->count();
+        $studentCountWithAverageGrade1 = User::has('getQuizzes')
+            ->join('quizzes', 'users.id', '=', 'quizzes.user_id')
+            ->selectRaw('users.id, users.name, users.profilepicture, ROUND(AVG(quizzes.grade)) as averageScore')
+            ->groupBy('users.id', 'users.name', 'users.profilepicture')
+            ->havingRaw('ROUND(AVG(quizzes.grade)) = ?', [1])
+            ->count();
+        $studentCountWithAverageGrade2 = User::has('getQuizzes')
+            ->join('quizzes', 'users.id', '=', 'quizzes.user_id')
+            ->selectRaw('users.id, users.name, users.profilepicture, ROUND(AVG(quizzes.grade)) as averageScore')
+            ->groupBy('users.id', 'users.name', 'users.profilepicture')
+            ->havingRaw('ROUND(AVG(quizzes.grade)) = ?', [2])
+            ->count();
+        $studentCountWithAverageGrade3 = User::has('getQuizzes')
+            ->join('quizzes', 'users.id', '=', 'quizzes.user_id')
+            ->selectRaw('users.id, users.name, users.profilepicture, ROUND(AVG(quizzes.grade)) as averageScore')
+            ->groupBy('users.id', 'users.name', 'users.profilepicture')
+            ->havingRaw('ROUND(AVG(quizzes.grade)) = ?', [3])
+            ->count();
+        $studentCountWithAverageGrade4 = User::has('getQuizzes')
+            ->join('quizzes', 'users.id', '=', 'quizzes.user_id')
+            ->selectRaw('users.id, users.name, users.profilepicture, ROUND(AVG(quizzes.grade)) as averageScore')
+            ->groupBy('users.id', 'users.name', 'users.profilepicture')
+            ->havingRaw('ROUND(AVG(quizzes.grade)) = ?', [4])
+            ->count();
+        $studentCountWithAverageGrade5 = User::has('getQuizzes')
+            ->join('quizzes', 'users.id', '=', 'quizzes.user_id')
+            ->selectRaw('users.id, users.name, users.profilepicture, ROUND(AVG(quizzes.grade)) as averageScore')
+            ->groupBy('users.id', 'users.name', 'users.profilepicture')
+            ->havingRaw('ROUND(AVG(quizzes.grade)) = ?', [5])
+            ->count();
+        $percentages1and0 = (($studentCountWithAverageGrade0+$studentCountWithAverageGrade1)*100)/$users->count();
+        $percentages2 = ($studentCountWithAverageGrade2*100)/$users->count();
+        $percentages3 = ($studentCountWithAverageGrade3*100)/$users->count();
+        $percentages4and5 = (($studentCountWithAverageGrade4+$studentCountWithAverageGrade5)*100)/$users->count();
+        $res = [$percentages1and0,$percentages2,$percentages3,$percentages4and5];
+        return response()->json(['percentagesArr'=>$res]);
+    }
 }

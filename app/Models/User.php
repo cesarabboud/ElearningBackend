@@ -58,6 +58,12 @@ class User extends Authenticatable
     public function getAnswers(){
         return $this->hasMany(Answer::class);
     }
+    public function getFavorites(){
+        return $this->belongsToMany(Course::class,'favorites','user_id','course_id')->withPivot('dateAdded');
+    }
+    public function getQuizzes(){
+        return $this->hasMany(Quiz::class);
+    }
     /**
      * The attributes that should be cast.
      *

@@ -50,8 +50,8 @@ class CourseController extends Controller
 
 
     public function getCourseDetails ($cid) {
+        $course = Course::with('getCategory')->with('getReviews')->with('getUser')->find($cid);
 
-        $course = Course::with('getCategory')->with('getReviews')->find($cid);
         return response()->json(['course'=>$course,'nbrev'=>$course->getReviews->count()]);
 
     }
@@ -73,7 +73,7 @@ class CourseController extends Controller
         return response()->json(['uniqueTypes'=>$uniqueTypes]);
     }
     public function searchCourseByName(Request $request){
-        $coursesList = Course::where('title','like','%'.$request->title.'%')->with('getCategory')->get();
+        $coursesList = Course::where('title','like','%'.$request->title.'%')->with('getUser')->with('getCategory')->get();
         if($coursesList->count()>0){
             return response()->json(['courses'=>$coursesList,'nbcourses'=>$coursesList->count()]);
         }
@@ -133,6 +133,27 @@ class CourseController extends Controller
         } else {
             return response()->json(['message' => 'No courses found.']);
         }
+
+    }
+
+    public function searchMyPDFs(Request $request){
+        $myPDFs = $this->getPDFs();
+        return $myPDFs;
+    }
+
+    public function getOwnedCourses(){
+        $coursesOwnedByUser = Order::where('user_id', Auth::id())
+            ->with('getCoursesOwned.getCourse') // Eager load the courses relationship
+            ->with('getCoursesOwned.getCourse.getCategory')
+            ->with('getCoursesOwned.getCourse.getUser')
+            ->get()
+            ->pluck('getCoursesOwned')
+            ->flatten()
+            ->groupBy(function ($courseOwned) {
+                return $courseOwned->getCourse->type;
+            });
+
+        return response()->json(['courses'=>$coursesOwnedByUser]);
 
     }
 }
